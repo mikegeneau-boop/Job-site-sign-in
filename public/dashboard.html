@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<body style="font-family:Arial;padding:20px;">
+<h2>Currently On Site</h2>
+<div id="content"></div>
+
+<h3>Recent Activity</h3>
+<div id="log"></div>
+
+<script>
+function load(){
+    fetch('/status').then(r=>r.json()).then(data=>{
+        if(data.length===0){
+            content.innerHTML="SITE IS EMPTY";
+            return;
+        }
+
+        const groups = {};
+        data.forEach(p=>{
+            if(!groups[p.company]) groups[p.company]=[];
+            groups[p.company].push(p);
+        });
+
+        content.innerHTML="";
+        for(const c in groups){
+            content.innerHTML += `<h3>${c} (${groups[c].length})</h3><ul>` +
+            groups[c].map(p=>`<li>${p.name} - ${p.trade}</li>`).join('') +
+            "</ul>";
+        }
+    });
+
+    fetch('/logs').then(r=>r.json()).then(logs=>{
+        log.innerHTML = logs.slice(-10).reverse()
+            .map(e=>`${e.name} ${e.action}`)
+            .join("<br>");
+    });
+}
+
+setInterval(load, 5000);
+load();
+</script>
+
+</body>
+</html>

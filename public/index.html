@@ -1,1 +1,85 @@
-<!doctype html><html><head><link rel='stylesheet' href='style.css'></head><body><div class='card'><h1>Job Site Sign In</h1><input id='name' placeholder='Full Name'><select id='trade' size='8'><option>Electrician</option><option>Plumber</option></select><input id='date' type='date'><div class='row'><button class='g'>Sign In</button><button class='r'>Sign Out</button></div></div><script>document.getElementById('date').value=new Date().toISOString().split('T')[0];</script></body></html>
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body { font-family: Arial; background:#f4f4f4; text-align:center; padding:20px;}
+.card { background:white; padding:20px; border-radius:10px; max-width:400px; margin:auto; box-shadow:0 0 10px #ccc;}
+input, select, button { width:100%; padding:15px; margin:10px 0; font-size:16px; }
+.signin { background:#ffd700; font-weight:bold;}
+.signout { background:#ff4d4d; color:white; font-weight:bold;}
+</style>
+</head>
+<body>
+
+<div class="card">
+<h2>Lanca Job Site</h2>
+
+<input id="name" placeholder="Full Name">
+<input id="company" placeholder="Company">
+<select id="trade"></select>
+
+<button class="signin" onclick="send('Sign In')">SIGN IN</button>
+<button class="signout" onclick="send('Sign Out')">SIGN OUT</button>
+
+<p id="msg"></p>
+</div>
+
+<script>
+const trades = [
+"Other","Lanca","Aluminum entrances","Asphalt paving","Caulking","Concrete Finisher",
+"Curbs & sidewalks","Door hardware","Drywall and Steel stud framing","Electrical",
+"Elevator system","Exterior specialties","Fence","Finish carpentry","Flooring","Formwork",
+"Framing","Glazing","Hollow metal","Hollowcore","HVAC","Interior specialties","Landscaping",
+"Masonry","Millwork","Misc metals","Paint","Plumbing","Railings","Reinforcing steel",
+"Residential equipment","Retaining walls","Roofing","Rough carpentry","Siding",
+"Siteworks & site services","Solid surfaces","Structural steel","Thermal protection",
+"Toppings","Vinyl windows","Waterproofing"
+];
+
+const select = document.getElementById('trade');
+trades.forEach(t => {
+    const o = document.createElement('option');
+    o.text = t;
+    select.add(o);
+});
+
+// Autofill memory
+let saved = JSON.parse(localStorage.getItem('workers') || "[]");
+
+document.getElementById('name').addEventListener('change', () => {
+    const w = saved.find(s => s.name === name.value);
+    if (w) {
+        company.value = w.company;
+        trade.value = w.trade;
+    }
+});
+
+function saveWorker(w){
+    saved = saved.filter(s => s.name !== w.name);
+    saved.unshift(w);
+    saved = saved.slice(0,50);
+    localStorage.setItem('workers', JSON.stringify(saved));
+}
+
+function send(action){
+    const w = {
+        name: name.value,
+        company: company.value,
+        trade: trade.value,
+        action
+    };
+
+    fetch('/log', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify(w)
+    }).then(()=>{
+        msg.innerText = "Saved";
+        saveWorker(w);
+    });
+}
+</script>
+
+</body>
+</html>

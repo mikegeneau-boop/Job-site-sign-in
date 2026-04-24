@@ -1,1 +1,85 @@
-<html><body><h1>Manager</h1><script>fetch('/api/logs').then(r=>r.json()).then(console.log)</script></body></html>
+<!DOCTYPE html>
+<html>
+<body style="font-family:Arial;padding:20px;">
+
+<h2>Manager Login</h2>
+<input id="pw" placeholder="Password">
+<button onclick="login()">Enter</button>
+
+<div id="app" style="display:none;">
+<input id="search" placeholder="Search..." onkeyup="load()">
+<button onclick="exportCSV()">Export CSV</button>
+
+<table border="1" id="table"></table>
+</div>
+
+<script>
+let data = [];
+
+function login(){
+    fetch('/login',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({password:pw.value})
+    }).then(r=>r.json()).then(d=>{
+        if(d.success){
+            app.style.display='block';
+            load();
+        } else alert("Wrong password");
+    });
+}
+
+function load(){
+    fetch('/logs').then(r=>r.json()).then(d=>{
+        data = d;
+
+        const s = search.value.toLowerCase();
+        const filtered = data.filter(r =>
+            JSON.stringify(r).toLowerCase().includes(s)
+        );
+
+        let html = "<tr><th onclick='sort(0)'>Name</th><th onclick='sort(1)'>Company</th><th>Trade</th><th>Action</th><th>Delete</th></tr>";
+
+        filtered.forEach((r,i)=>{
+            html += `<tr>
+                <td>${r.name}</td>
+                <td>${r.company}</td>
+                <td>${r.trade}</td>
+                <td>${r.action}</td>
+                <td><button onclick="del(${i})">X</button></td>
+            </tr>`;
+        });
+
+        table.innerHTML = html;
+    });
+}
+
+function sort(col){
+    data.sort((a,b)=>Object.values(a)[col].localeCompare(Object.values(b)[col]));
+    load();
+}
+
+function del(i){
+    fetch('/delete',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({index:i})
+    }).then(load);
+}
+
+function exportCSV(){
+    let csv = "name,company,trade,action\n";
+    data.forEach(r=>{
+        csv += `${r.name},${r.company},${r.trade},${r.action}\n`;
+    });
+
+    const blob = new Blob([csv]);
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = "log.csv";
+    a.click();
+}
+</script>
+
+</body>
+</html>
