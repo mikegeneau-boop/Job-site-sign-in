@@ -1,1 +1,1 @@
-body{font-family:Arial;background:#f2f2f2;padding:20px}.card{max-width:620px;margin:auto;background:#fff;padding:20px;border-radius:12px}.logo{display:block;margin:auto;max-width:320px}.title{text-align:center}.btnrow{display:flex;justify-content:center;gap:20px}.green{background:green;color:#fff;padding:12px 24px}.red{background:red;color:#fff;padding:12px 24px}
+body{font-family:Arial}.card{max-width:700px;margin:auto}h1{text-align:center}.row{display:flex;justify-content:center;gap:20px}.g{background:green;color:#fff}.r{background:red;color:#fff}
